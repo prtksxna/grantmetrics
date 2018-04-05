@@ -51,7 +51,7 @@ class ExceptionSubscriber
 
         if ($exception instanceof Twig_Error_Runtime) {
             $response = $this->getTwigExceptionResponse($exception);
-        } elseif ($execption instanceof I18nException) {
+        } elseif ($exception instanceof I18nException) {
             $response = $this->getI18nExceptionResponse($exception);
         } else {
             return;
@@ -94,9 +94,9 @@ class ExceptionSubscriber
 
     private function getI18nExceptionResponse(\Exception $exception)
     {
-        if ($this->environment !== 'prod') {
-            throw $exception;
-        }
+        // if ($this->environment !== 'prod') {
+        //     throw $exception;
+        // }
 
         // Log the exception, since we're handling it and it won't automatically be logged.
         $file = explode('/', $exception->getFile());
@@ -106,10 +106,10 @@ class ExceptionSubscriber
         );
 
         return new Response(
-            $this->templateEngine->render('TwigBundle:Exception:error.html.twig', [
+            $this->templateEngine->render('', [
                 'status_code' => 500,
                 'status_text' => 'Internal Server Error',
-                'exception' => $prevException,
+                'exception' => $exception,
             ])
         );
     }
