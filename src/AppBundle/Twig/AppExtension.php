@@ -90,9 +90,11 @@ class AppExtension extends Extension
      */
     public function msgExists($message = '', $vars = [])
     {
-        return $this->getIntuition()->msgExists($message, [
-            'domain' => 'grantmetrics',
-            'variables' => is_array($vars) ? $vars : []
+        return $this->callIntuition('msgExists', [
+            $message, [
+                'domain' => 'grantmetrics',
+                'variables' => is_array($vars) ? $vars : []
+            ],
         ]);
     }
 

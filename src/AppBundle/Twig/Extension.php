@@ -5,12 +5,12 @@
 
 namespace AppBundle\Twig;
 
-use Symfony\Component\Config\Definition\Exception\Exception;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use AppBundle\Exception\I18nException;
 use Intuition;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Twig_Extension;
 
 /**
@@ -122,9 +122,28 @@ abstract class Extension extends Twig_Extension
             $message = $message[0];
             $vars = array_slice($vars, 1);
         }
-        return $this->getIntuition()->msg($message, [
-            'domain' => 'grantmetrics',
-            'variables' => $vars
+        return $this->callIntuition('msg', [
+            $message, [
+                'domain' => 'grantmetrics',
+                'variables' => $vars,
+            ],
         ]);
+    }
+
+    /**
+     * Call the given method on the Intuition instance, with given params.
+     * This is used to handle Intuition exceptions, which are listened for
+     * in AppBundle\EventSubscriber\ExceptionSubscriber.
+     * @param string $method Valid method on the Intuition class.
+     * @param array $params
+     * @return mixed
+     * @throws I18nException If Intuition errors out.
+     */
+    protected function callIntuition($method, $params) {
+        try {
+            call_user_func_array([$this->getIntuition(), $method], $params);
+        } catch (\Exception $e) {
+            throw new I18nException($e->getMessage(), $e->getCode(), $e->getPrevious());
+        }
     }
 }

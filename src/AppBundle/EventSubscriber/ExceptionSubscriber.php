@@ -5,6 +5,7 @@
 
 namespace AppBundle\EventSubscriber;
 
+use AppBundle\EventSubscriber\I18nException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
@@ -48,11 +49,26 @@ class ExceptionSubscriber
     {
         $exception = $event->getException();
 
+        if ($exception instanceof Twig_Error_Runtime) {
+            $response = $this->getTwigExceptionResponse($exception);
+        } elseif ($execption instanceof I18nException) {
+            $response = $this->getI18nExceptionResponse($exception);
+        } else {
+            return;
+        }
+
+        // sends the modified response object to the event
+        $event->setResponse($response);
+    }
+
+    private function getTwigExceptionResponse(Twig_Error_Runtime $exception)
+    {
         // We only care about the previous (original) exception,
         // not the one Twig put on top of it.
         $prevException = $exception->getPrevious();
 
-        if (!($exception instanceof Twig_Error_Runtime && $prevException !== null)) {
+        // No previous exception, so we've got nothing to show. This is basically a fail-safe.
+        if ($prevException === null) {
             return;
         }
 
@@ -67,15 +83,26 @@ class ExceptionSubscriber
             end($file).' - line '.$prevException->getLine().')'
         );
 
-        $response = new Response(
+        return new Response(
             $this->templateEngine->render('TwigBundle:Exception:error.html.twig', [
                 'status_code' => 500,
                 'status_text' => 'Internal Server Error',
                 'exception' => $prevException,
             ])
         );
+    }
 
-        // sends the modified response object to the event
-        $event->setResponse($response);
+    private function getI18nExceptionResponse(\Exception $exception)
+    {
+        if ($this->environment !== 'prod') {
+            throw $exception;
+        }
+
+        // Log the exception, since we're handling it and it won't automatically be logged.
+        $file = explode('/', $exception->getFile());
+        $this->logger->error(
+            '>>> CRITICAL (Intuition - \''.$exception->getMessage().'\' - '.
+            end($file).' - line '.$exception->getLine().')'
+        );
     }
 }
