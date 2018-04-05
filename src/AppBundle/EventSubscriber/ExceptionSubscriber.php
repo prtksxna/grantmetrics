@@ -104,5 +104,13 @@ class ExceptionSubscriber
             '>>> CRITICAL (Intuition - \''.$exception->getMessage().'\' - '.
             end($file).' - line '.$exception->getLine().')'
         );
+
+        return new Response(
+            $this->templateEngine->render('TwigBundle:Exception:error.html.twig', [
+                'status_code' => 500,
+                'status_text' => 'Internal Server Error',
+                'exception' => $prevException,
+            ])
+        );
     }
 }
