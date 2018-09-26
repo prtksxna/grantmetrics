@@ -66,10 +66,28 @@ trait TitleUserTrait
      */
     public function validateUnreservedTitle(ExecutionContext $context): void
     {
-        if (in_array($this->title, ['edit', 'new', 'delete', 'process', 'api', 'revisions'])) {
+        $blacklist = ['edit', 'new', 'delete', 'process', 'api', 'revisions', 'events'];
+        if (in_array($this->title, $blacklist)) {
+            $blacklistFormatted = implode(',', array_map(function ($str) {
+                return "<code>$str</code>";
+            }, $blacklist));
+
             $context->buildViolation('error-title-reserved')
-                ->setParameter(0, '<code>edit</code>, <code>delete</code>, '.
-                    '<code>process</code>, <code>api</code>, <code>revisions</code>')
+                ->setParameter(0, $blacklistFormatted)
+                ->atPath('title')
+                ->addViolation();
+        }
+    }
+
+    /**
+     * Validates that the title is not just a number (as these would be assumed to be IDs).
+     * @Assert\Callback
+     * @param ExecutionContext $context
+     */
+    public function validateNonNumerical(ExecutionContext $context): void
+    {
+        if (ctype_digit((string)$this->title)) {
+            $context->buildViolation('error-title-numeric')
                 ->atPath('title')
                 ->addViolation();
         }

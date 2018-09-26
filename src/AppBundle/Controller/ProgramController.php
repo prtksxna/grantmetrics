@@ -74,8 +74,8 @@ class ProgramController extends EntityController
 
     /**
      * Show a form to edit the given program.
-     * @Route("/programs/edit/{programTitle}", name="EditProgram")
-     * @Route("/programs/edit/{programTitle}/", name="EditProgramSlash")
+     * @Route("/programs/edit/{programId}", name="EditProgram")
+     * @Route("/programs/edit/{programId}/", name="EditProgramSlash")
      * @return Response|RedirectResponse
      */
     public function editAction(): Response
@@ -97,8 +97,8 @@ class ProgramController extends EntityController
 
     /**
      * Delete a program.
-     * @Route("/programs/delete/{programTitle}", name="DeleteProgram")
-     * @Route("/programs/delete/{programTitle}/", name="DeleteProgramSlash")
+     * @Route("/programs/delete/{programId}", name="DeleteProgram")
+     * @Route("/programs/delete/{programId}/", name="DeleteProgramSlash")
      * @return RedirectResponse
      */
     public function deleteAction(): RedirectResponse
@@ -114,8 +114,8 @@ class ProgramController extends EntityController
 
     /**
      * Show a specific program, listing all of its events.
-     * @Route("/programs/{programTitle}", name="Program")
-     * @Route("/programs/{programTitle}/", name="ProgramSlash")
+     * @Route("/programs/{programId}", name="Program")
+     * @Route("/programs/{programId}/", name="ProgramSlash")
      * @param ProgramRepository $programRepo
      * @return Response
      */

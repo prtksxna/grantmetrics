@@ -294,6 +294,7 @@ class EventControllerTest extends DatabaseAwareWebTestCase
 
     /**
      * Show page, which lists participants and statistics.
+     * This also tests that you can use the ID or title for routing.
      */
     private function showSpec()
     {
@@ -304,6 +305,22 @@ class EventControllerTest extends DatabaseAwareWebTestCase
         // Should see the 'edit event', since we are logged in and are one of the organizers.
         static::assertContains(
             'edit event',
+            $this->crawler->filter('.page-header')->text()
+        );
+
+        // Make sure going by ID works too.
+
+        /** @var Event $event */
+        $event = $this->entityManager
+            ->getRepository('Model:Event')
+            ->findOneBy(['title' => 'Pinocchio']);
+        $programId = $event->getProgram()->getId();
+        $eventId = $event->getId();
+        $this->crawler = $this->client->request('GET', "/programs/$programId/$eventId");
+        $this->response = $this->client->getResponse();
+        static::assertEquals(200, $this->response->getStatusCode());
+        static::assertContains(
+            'Pinocchio',
             $this->crawler->filter('.page-header')->text()
         );
     }

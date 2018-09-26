@@ -29,8 +29,8 @@ class EventDataController extends EntityController
 
     /**
      * Lists individual revisions that make up the Event.
-     * @Route("/programs/{programTitle}/{eventTitle}/revisions", name="Revisions")
-     * @Route("/programs/{programTitle}/{eventTitle}/revisions/", name="RevisionsSlash")
+     * @Route("/programs/{programId}/{eventId}/revisions", name="Revisions")
+     * @Route("/programs/{programId}/{eventId}/revisions/", name="RevisionsSlash")
      * @param EventRepository $eventRepo
      * @return Response
      */
@@ -39,8 +39,8 @@ class EventDataController extends EntityController
         // Redirect to event page if statistics have not yet been generated.
         if (null === $this->event->getUpdated()) {
             return $this->redirectToRoute('Event', [
-                'programTitle' => $this->program->getTitle(),
-                'eventTitle' => $this->event->getTitle(),
+                'programId' => $this->program->getId(),
+                'eventId' => $this->event->getId(),
             ]);
         }
 
